@@ -42,7 +42,7 @@ css/style.css       Estilos, mobile-first, paleta en variables CSS
 js/menu-data.js     Carta, sucursales, distritos (fuente única de verdad)
 js/script.js        Menú, carrito, mensaje de WhatsApp, JSON-LD, menú móvil
 assets/             Imágenes y video optimizados para web
-_headers            Reglas de caché para Cloudflare Pages
+server.js           Servidor estático (Express) con caché y redirecciones
 robots.txt          Indexación
 sitemap.xml         Mapa del sitio
 ```
@@ -66,7 +66,9 @@ Alternativamente, cualquier servidor estático sirve: `python3 -m http.server`.
 
 ## Despliegue
 
-Cloudflare Pages conectado al repositorio. Sin build: se publican los archivos tal cual, y cada `git push` republica el sitio.
+Railway conectado a este repositorio: cada `git push` a `main` republica el sitio automáticamente.
+El servidor Express sirve los archivos estáticos, aplica cabeceras de caché por tipo de archivo
+y redirige `www` y HTTP hacia la versión canónica en HTTPS.
 
 ---
 
