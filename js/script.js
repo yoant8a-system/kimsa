@@ -277,32 +277,16 @@ function injectStructuredData() {
 // Ningún navegador permite arrancar un video CON sonido sin que el usuario haya
 // interactuado antes con la página; es una regla del navegador, no algo que se
 // pueda desactivar. Por eso el video arranca silenciado (que sí está permitido) y
-// se muestra un botón "Activar sonido": ese clic es la interacción que el navegador
-// exige. Una vez que el usuario pide sonido, se respeta y no se vuelve a silenciar.
+// el usuario activa el audio con el control de volumen del propio video.
+// Una vez que lo hace, se respeta su elección y no se vuelve a silenciar.
 function wireVideoAutoplay() {
   const video = document.getElementById("feature-video");
-  const soundBtn = document.getElementById("video-sound-btn");
   if (!video) return;
 
   let userWantsSound = false;
 
-  const enableSound = () => {
-    userWantsSound = true;
-    video.muted = false;
-    video.volume = 1;
-    video.play().catch(() => {});
-    if (soundBtn) soundBtn.hidden = true;
-  };
-
-  if (soundBtn) soundBtn.addEventListener("click", enableSound);
-
-  // Si el usuario activa el sonido desde los controles del propio video,
-  // tomarlo como su preferencia y esconder el botón.
   video.addEventListener("volumechange", () => {
-    if (!video.muted && video.volume > 0) {
-      userWantsSound = true;
-      if (soundBtn) soundBtn.hidden = true;
-    }
+    if (!video.muted && video.volume > 0) userWantsSound = true;
   });
 
   if (!("IntersectionObserver" in window)) return;
