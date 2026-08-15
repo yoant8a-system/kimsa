@@ -1,0 +1,25 @@
+# Dependencias y entorno
+node_modules/
+.env
+.env.*
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Documentación interna y de trabajo (no forma parte del sitio publicado)
+DEPLOY.md
+README-PENDIENTES.md
+NOTAS*.md
+notas*.md
+*-PENDIENTES.md
+*-INTERNO.md
+/docs/
+/guias/
+/instrucciones/
+
+# Archivos intermedios de edición de imágenes
+assets/logo/icon-slice.png

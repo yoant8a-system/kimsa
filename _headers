@@ -1,0 +1,19 @@
+# Reglas de caché para Cloudflare Pages.
+# Evita el problema de "cambié la imagen pero sigo viendo la vieja":
+# el HTML nunca se cachea, los assets sí pero por poco tiempo.
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+/css/*
+  Cache-Control: public, max-age=3600
+
+/js/*
+  Cache-Control: public, max-age=3600
+
+/assets/*
+  Cache-Control: public, max-age=86400

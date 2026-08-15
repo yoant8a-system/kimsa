@@ -1,0 +1,12 @@
+{
+  "name": "kimsa-pizzas-landing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Landing page de KIMSA Pizzas - Ayacucho",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
