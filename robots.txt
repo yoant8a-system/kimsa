@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://kimsapizzas.com/sitemap.xml
+Sitemap: https://kimsapizza.com/sitemap.xml

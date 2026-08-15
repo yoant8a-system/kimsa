@@ -3,7 +3,7 @@
 Landing page de conversión para una pizzería con 3 sucursales en Ayacucho, Perú.
 Construida con HTML, CSS y JavaScript puros: sin frameworks, sin build, sin dependencias.
 
-**Sitio en vivo:** https://kimsapizzas.com
+**Sitio en vivo:** https://kimsapizza.com
 
 ---
 

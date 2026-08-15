@@ -224,7 +224,7 @@ function injectStructuredData() {
     graph.push({
       "@type": "Restaurant",
       name: `${BUSINESS.name} - ${b.name.replace("KIMSA ", "")}`,
-      image: "https://kimsapizzas.com/assets/og/og-image.jpg",
+      image: "https://kimsapizza.com/assets/og/og-image.jpg",
       servesCuisine: BUSINESS.cuisines,
       priceRange: BUSINESS.priceRange,
       telephone: `+${BUSINESS.whatsappNumber}`,
@@ -274,26 +274,46 @@ function injectStructuredData() {
 }
 
 // ---------- Video: reproducir automáticamente al pasar por la sección ----------
-// Nota: los navegadores bloquean el autoplay CON sonido salvo que el usuario ya haya
-// interactuado con la página. Por eso intentamos primero con sonido y, si el navegador
-// lo rechaza, reintentamos silenciado (igual que Instagram/Facebook); el usuario puede
-// activar el sonido en cualquier momento con el control de volumen del propio video.
+// Ningún navegador permite arrancar un video CON sonido sin que el usuario haya
+// interactuado antes con la página; es una regla del navegador, no algo que se
+// pueda desactivar. Por eso el video arranca silenciado (que sí está permitido) y
+// se muestra un botón "Activar sonido": ese clic es la interacción que el navegador
+// exige. Una vez que el usuario pide sonido, se respeta y no se vuelve a silenciar.
 function wireVideoAutoplay() {
   const video = document.getElementById("feature-video");
-  if (!video || !("IntersectionObserver" in window)) return;
+  const soundBtn = document.getElementById("video-sound-btn");
+  if (!video) return;
+
+  let userWantsSound = false;
+
+  const enableSound = () => {
+    userWantsSound = true;
+    video.muted = false;
+    video.volume = 1;
+    video.play().catch(() => {});
+    if (soundBtn) soundBtn.hidden = true;
+  };
+
+  if (soundBtn) soundBtn.addEventListener("click", enableSound);
+
+  // Si el usuario activa el sonido desde los controles del propio video,
+  // tomarlo como su preferencia y esconder el botón.
+  video.addEventListener("volumechange", () => {
+    if (!video.muted && video.volume > 0) {
+      userWantsSound = true;
+      if (soundBtn) soundBtn.hidden = true;
+    }
+  });
+
+  if (!("IntersectionObserver" in window)) return;
 
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          video.muted = false;
-          const playPromise = video.play();
-          if (playPromise && playPromise.catch) {
-            playPromise.catch(() => {
-              video.muted = true;
-              video.play().catch(() => {});
-            });
-          }
+          // Solo forzar el silencio si el usuario todavía no pidió sonido.
+          if (!userWantsSound) video.muted = true;
+          video.play().catch(() => {});
         } else {
           video.pause();
         }

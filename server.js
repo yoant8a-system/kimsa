@@ -42,6 +42,8 @@ app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, "index.html"));
 });
 
-app.listen(PORT, () => {
+// Escuchar en 0.0.0.0 (no solo localhost): Railway lo necesita para
+// poder enrutar el tráfico externo hacia el contenedor.
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`KIMSA Pizzas escuchando en el puerto ${PORT}`);
 });

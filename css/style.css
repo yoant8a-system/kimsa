@@ -347,12 +347,40 @@ h1, h2, h3 {
 
 /* ---------- Video ---------- */
 .video-wrap {
+  position: relative;
   max-width: 720px;
   margin: 0 auto;
   border-radius: var(--radius);
   overflow: hidden;
   box-shadow: var(--shadow);
 }
+
+/* Botón para activar el sonido (el navegador no permite autoplay con audio) */
+.video-sound-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(13, 13, 13, 0.78);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s ease;
+}
+
+.video-sound-btn:hover { background: var(--color-primary); }
+
+.video-sound-btn svg { width: 17px; height: 17px; }
+
+.video-sound-btn[hidden] { display: none; }
 
 .video-wrap video {
   width: 100%;
