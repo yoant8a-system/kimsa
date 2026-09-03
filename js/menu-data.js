@@ -25,12 +25,16 @@ const BUSINESS = {
   cuisines: ["Pizza", "Pasta", "Comida Italiana", "Alitas"],
 };
 
-// Perfiles oficiales. Se usan para enlazarlos desde el sitio y, sobre todo, para
-// declararlos en el JSON-LD como "sameAs": así Google entiende que la web, la
-// página de Facebook y la ficha de Google son el mismo negocio.
+// Redes sociales PROPIAS de estos 3 locales.
+// Ojo: la página de Facebook "KimsaPizza" (17.8k) y el Instagram "kimsa.pizza"
+// pertenecen a otro dueño de la marca y promocionan otras sucursales, por eso
+// NO se enlazan desde aquí: mandarían clientes y señales de Google a locales
+// que no son de este cliente.
+// Cuando se creen las cuentas propias, se agregan aquí y se declaran como
+// "sameAs" en el JSON-LD (ver script.js).
 const SOCIAL = {
-  facebook: "https://www.facebook.com/KimsaPizza/",
-  instagram: "https://www.instagram.com/kimsa.pizza/",
+  facebook: null,
+  instagram: null,
 };
 
 // Distritos y zonas de reparto en Ayacucho
@@ -53,6 +57,7 @@ const BRANCHES = [
     id: "ejercito",
     name: "KIMSA Av. Ejército",
     address: "Av. Ejército 558 (Frente al Grifo Roca), Ayacucho",
+    zone: "Pizza en la zona de Av. Ejército, frente al Grifo Roca. Delivery rápido a los alrededores.",
     phoneDisplay: "967 414 558",
     mapsQuery: "Av. Ejército 558, Ayacucho, Perú", // TODO: reemplazar por lat/lng cuando tengamos el link de Google Maps de esta sucursal
     mapsUrl: null,
@@ -61,6 +66,7 @@ const BRANCHES = [
     id: "olivos",
     name: "KIMSA Los Olivos",
     address: "Av. Los Incas 400 - Los Olivos, Ayacucho",
+    zone: "Pizzería en Los Olivos, San Juan Bautista. La más cercana si vives por esta zona.",
     phoneDisplay: "967 414 558",
     lat: -13.1701522,
     lng: -74.2160721,
@@ -70,6 +76,7 @@ const BRANCHES = [
     id: "nazarenas",
     name: "KIMSA Nazarenas",
     address: "Jr. José Santos Chocano (Frente al Parque Infantil Nazarenas), Ayacucho",
+    zone: "Pizza cerca del Parque Infantil Nazarenas. Ideal para llevar o comer en familia.",
     phoneDisplay: "967 414 558",
     lat: -13.154172,
     lng: -74.21558,

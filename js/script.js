@@ -201,6 +201,7 @@ function renderBranches() {
       <div class="branch-card-body">
         <h3>${b.name}</h3>
         <p>${b.address}</p>
+        ${b.zone ? `<p class="branch-zone">${b.zone}</p>` : ""}
         <p>Tel: <a href="tel:+${BUSINESS.whatsappNumber}">${b.phoneDisplay}</a></p>
         <p>Horario: ${BUSINESS.openingHours}</p>
         <a href="${externalLink}" target="_blank" rel="noopener" class="branch-map-link">Ver en Google Maps</a>
@@ -226,7 +227,10 @@ function injectStructuredData() {
       name: `${BUSINESS.name} - ${b.name.replace("KIMSA ", "")}`,
       image: "https://kimsapizza.com/assets/og/og-image.jpg",
       url: "https://kimsapizza.com/",
-      sameAs: [SOCIAL.facebook, SOCIAL.instagram],
+      // Solo se declaran las redes propias. Si están vacías, se omite el campo.
+      ...(SOCIAL.facebook || SOCIAL.instagram
+        ? { sameAs: [SOCIAL.facebook, SOCIAL.instagram].filter(Boolean) }
+        : {}),
       servesCuisine: BUSINESS.cuisines,
       priceRange: BUSINESS.priceRange,
       telephone: `+${BUSINESS.whatsappNumber}`,
