@@ -225,6 +225,8 @@ function injectStructuredData() {
       "@type": "Restaurant",
       name: `${BUSINESS.name} - ${b.name.replace("KIMSA ", "")}`,
       image: "https://kimsapizza.com/assets/og/og-image.jpg",
+      url: "https://kimsapizza.com/",
+      sameAs: [SOCIAL.facebook, SOCIAL.instagram],
       servesCuisine: BUSINESS.cuisines,
       priceRange: BUSINESS.priceRange,
       telephone: `+${BUSINESS.whatsappNumber}`,

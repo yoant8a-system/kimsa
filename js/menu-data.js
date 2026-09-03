@@ -7,16 +7,27 @@
 // ============================================================
 
 const BUSINESS = {
-  name: "KIMSA Pizzas",
-  legalName: "KIMSA Pizzas",
+  // El nombre debe coincidir EXACTAMENTE con el de la ficha de Google y Facebook.
+  // Si el sitio se llama distinto, Google no asocia la web con el negocio que ya
+  // conoce (el de las 65 reseñas) y ambos compiten en vez de reforzarse.
+  name: "KIMSA Pizza & Pasta",
+  legalName: "KIMSA Pizza & Pasta",
   description:
     "Pizzería en Ayacucho especializada en pizzas artesanales, pastas y alitas, con delivery a todo Huamanga y distritos aledaños.",
   whatsappNumber: "51967414558", // formato internacional sin '+' ni espacios
   whatsappDisplay: "967 414 558",
-  openingHours: "18:00-23:00", // TODO: confirmar si el horario es igual todos los días de la semana
-  openingHoursSchema: ["Mo-Su 18:00-23:00"], // TODO: ajustar si varía por día
+  openingHours: "18:00-23:00", // PENDIENTE: en Google y Facebook figura 16:00-23:00
+  openingHoursSchema: ["Mo-Su 18:00-23:00"], // PENDIENTE: confirmar con el dueño
   priceRange: "S/ 7 - S/ 70",
   cuisines: ["Pizza", "Pasta", "Comida Italiana", "Alitas"],
+};
+
+// Perfiles oficiales. Se usan para enlazarlos desde el sitio y, sobre todo, para
+// declararlos en el JSON-LD como "sameAs": así Google entiende que la web, la
+// página de Facebook y la ficha de Google son el mismo negocio.
+const SOCIAL = {
+  facebook: "https://www.facebook.com/KimsaPizza/",
+  instagram: "https://www.instagram.com/kimsa.pizza/",
 };
 
 // Distritos y zonas de reparto en Ayacucho

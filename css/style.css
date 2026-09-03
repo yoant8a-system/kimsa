@@ -675,6 +675,36 @@ h1, h2, h3 {
   font-size: 0.95rem;
 }
 
+/* ---------- Tarjetas de contenido ---------- */
+.info-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 760px) {
+  .info-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.info-card {
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--color-accent);
+}
+
+.info-card h3 {
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  margin-bottom: 10px;
+}
+
+.info-card p {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
 /* ---------- Coverage ---------- */
 .coverage-list {
   display: flex;
@@ -742,6 +772,23 @@ h1, h2, h3 {
 }
 
 .site-footer a:hover { color: var(--color-accent); }
+
+.social-links {
+  display: flex;
+  gap: 16px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.social-links svg { width: 20px; height: 20px; }
 
 .footer-bottom {
   text-align: center;
