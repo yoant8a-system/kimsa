@@ -16,8 +16,11 @@ const BUSINESS = {
     "Pizzería en Ayacucho especializada en pizzas artesanales, pastas y alitas, con delivery a todo Huamanga y distritos aledaños.",
   whatsappNumber: "51967414558", // formato internacional sin '+' ni espacios
   whatsappDisplay: "967 414 558",
-  openingHours: "18:00-23:00", // PENDIENTE: en Google y Facebook figura 16:00-23:00
-  openingHoursSchema: ["Mo-Su 18:00-23:00"], // PENDIENTE: confirmar con el dueño
+  // Confirmado por el dueño: 6pm a 11pm todos los días en SUS tres locales.
+  // (En la ficha de Google de otras sucursales KIMSA figura 4pm-11pm, pero esas
+  // no son de este cliente.)
+  openingHours: "18:00-23:00",
+  openingHoursSchema: ["Mo-Su 18:00-23:00"],
   priceRange: "S/ 7 - S/ 70",
   cuisines: ["Pizza", "Pasta", "Comida Italiana", "Alitas"],
 };
