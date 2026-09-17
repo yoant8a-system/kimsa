@@ -23,7 +23,7 @@ ld = breadcrumb("Pizza para eventos", URL) + '''
 
 body = '''
 <section class="page-hero">
-  <div class="container">
+  <div class="container narrow-content">
     <p class="breadcrumb"><a href="/">Inicio</a> / Pizza para eventos</p>
     <h1>Pizza para Eventos, Cumpleaños y Reuniones en Ayacucho</h1>
     <p>Pedidos grandes coordinados con anticipación, entregados a la hora que necesitas. Sin quedarte corto de comida ni pagar de más.</p>

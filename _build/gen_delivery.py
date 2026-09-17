@@ -23,7 +23,7 @@ ld = breadcrumb("Delivery en Ayacucho", URL) + '''
 
 body = '''
 <section class="page-hero">
-  <div class="container">
+  <div class="container narrow-content">
     <p class="breadcrumb"><a href="/">Inicio</a> / Delivery en Ayacucho</p>
     <h1>Delivery de Pizza en Ayacucho</h1>
     <p>Pedir pizza a domicilio en Huamanga sin llamadas ni esperas: eliges, mandas el pedido por WhatsApp y te llega caliente.</p>
