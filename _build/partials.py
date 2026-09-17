@@ -27,13 +27,13 @@ def head(title, description, canonical, keywords, extra_ld=""):
 <meta name="theme-color" content="#0d0d0d">
 <link rel="stylesheet" href="/css/style.css">
 
-<!-- Google Analytics 4 - TODO: reemplazar G-XXXXXXXXXX por el ID real -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<!-- Google Analytics 4 - propiedad "KIMSA Pizza & Pasta - kimsapizza.com" -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LHVPL18HQK"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){{dataLayer.push(arguments);}}
   gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX');
+  gtag('config', 'G-LHVPL18HQK');
 </script>
 {extra_ld}
 </head>
