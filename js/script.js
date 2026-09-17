@@ -239,6 +239,7 @@ function injectStructuredData() {
         streetAddress: b.address,
         addressLocality: "Ayacucho",
         addressRegion: "Ayacucho",
+        postalCode: "05001",
         addressCountry: "PE",
       },
       ...(b.lat && b.lng
