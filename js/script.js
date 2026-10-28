@@ -7,6 +7,10 @@
 
 const cart = {}; // { "Nombre del plato": qty }
 
+// Ubicación y envío del cliente (resultado de cotizarEnvio + método). Solo vive
+// en memoria mientras la página está abierta; ver "Envío" más abajo.
+let envio = null;
+
 function money(n) {
   return `S/ ${n.toFixed(2)}`;
 }
@@ -116,6 +120,7 @@ function updateCartBar() {
   bar.classList.add("visible");
   document.getElementById("cart-count").textContent = count;
   document.getElementById("cart-total").textContent = money(total);
+  renderShipLine();
 }
 
 function buildWhatsAppMessage() {
@@ -126,7 +131,14 @@ function buildWhatsAppMessage() {
   });
   if (Object.keys(cart).length > 0) {
     lines.push("");
-    lines.push(`Total aprox: ${money(total)}`);
+    lines.push(`Productos: ${money(total)}`);
+    if (envio && envio.tarifa != null) {
+      lines.push(`Envío (${envio.zona.nombre}): ${money(envio.tarifa)}`);
+      lines.push(`Total aprox: ${money(total + envio.tarifa)}`);
+    } else {
+      lines.push(`Envío: por confirmar`);
+      lines.push(`Total aprox: ${money(total)} + envío`);
+    }
   }
 
   const addressEl = document.getElementById("delivery-address");
@@ -137,6 +149,12 @@ function buildWhatsAppMessage() {
   lines.push("");
   lines.push(`Dirección de entrega: ${address || "(escribir aquí)"}`);
   lines.push(`Distrito: ${district || "(seleccionar)"}`);
+
+  // Ubicación del cliente y sucursal sugerida (la más cercana dentro de la zona de reparto).
+  if (envio) {
+    lines.push(`Ubicación: https://www.google.com/maps?q=${envio.lat.toFixed(6)},${envio.lng.toFixed(6)}`);
+    if (envio.zona && envio.sucursal) lines.push(`S:${envio.sucursal.id.toUpperCase()}`);
+  }
 
   return lines.join("\n");
 }
@@ -153,11 +171,12 @@ function populateDeliveryDistricts() {
 }
 
 function trackWhatsappClick(origin) {
-  // TODO: reemplazar por el ID real de Google Analytics 4 (ver <head>)
   if (typeof gtag === "function") {
     gtag("event", "generate_lead", {
       event_category: "WhatsApp",
       event_label: origin,
+      // Solo si compartió ubicación, nunca las coordenadas.
+      has_location: Boolean(envio),
     });
   }
 }
@@ -176,6 +195,289 @@ function wireWhatsappButtons() {
     const msg = buildWhatsAppMessage();
     window.open(whatsappLink(msg), "_blank", "noopener");
     trackWhatsappClick("cart");
+  });
+}
+
+// ---------- Envío: ubicación del cliente, zona y tarifa ----------
+// La ubicación NO se guarda ni se manda a Analytics ni a ningún servidor: solo
+// viaja dentro del mensaje de WhatsApp que el cliente decide enviar.
+// Dos formas de darla: permiso del navegador "solo esta vez" o tocar el mapa.
+let zonasPromise = null;
+
+function cargarZonas() {
+  if (!zonasPromise) {
+    zonasPromise = fetch("data/zonas-envio.geojson")
+      .then((r) => {
+        if (!r.ok) throw new Error("zonas");
+        return r.json();
+      })
+      .then((g) => g.features)
+      .catch((e) => {
+        zonasPromise = null; // que se pueda reintentar
+        throw e;
+      });
+  }
+  return zonasPromise;
+}
+
+async function cotizarUbicacion(lat, lng, metodo) {
+  const zonas = await cargarZonas();
+  return { ...cotizarEnvio(lat, lng, zonas, BRANCHES), metodo };
+}
+
+function trackEnvio(params) {
+  if (typeof gtag === "function") gtag("event", "shipping_quote", params);
+}
+
+function textoEnvio(e) {
+  if (e.zona && e.tarifa != null) {
+    const suc = e.sucursal ? ` · Sucursal más cercana: ${e.sucursal.nombre}` : "";
+    return `✅ Envío a ${e.zona.nombre}: ${money(e.tarifa)}${suc}`;
+  }
+  if (e.zona) return `📍 ${e.zona.nombre}: el asesor te confirma el costo del envío.`;
+  return "📍 Estás fuera de nuestras zonas habituales: el asesor te confirma si llegamos y el costo.";
+}
+
+function renderShipLine() {
+  const line = document.getElementById("cart-ship-line");
+  if (!line) return;
+  if (!envio) line.textContent = "";
+  else if (envio.tarifa != null) line.textContent = ` + envío ${money(envio.tarifa)}`;
+  else line.textContent = " + envío por confirmar";
+}
+
+function aplicarEnvio(e, extra = "") {
+  envio = e;
+  document.getElementById("ship-result").textContent = textoEnvio(e) + extra;
+  // Ya con ubicación, se esconden las instrucciones y los botones para que la barra ocupe menos en el celular.
+  document.querySelector(".cart-ship").classList.add("ship-done");
+  document.getElementById("ship-change-btn").hidden = false;
+  renderShipLine();
+  trackEnvio({
+    metodo: e.metodo,
+    resultado: e.tarifa != null ? "en_zona" : e.zona ? "sin_precio" : "fuera_de_zona",
+    sucursal: e.zona && e.sucursal ? e.sucursal.id : "ninguna",
+  });
+}
+
+function usarMiUbicacion() {
+  const out = document.getElementById("ship-result");
+  if (!navigator.geolocation) {
+    out.textContent = "Tu navegador no permite compartir ubicación. Toca «Elegir en el mapa».";
+    return;
+  }
+  out.textContent = "Buscando tu ubicación…";
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      try {
+        const e = await cotizarUbicacion(pos.coords.latitude, pos.coords.longitude, "gps");
+        // En computadora la ubicación suele ser aproximada (cientos de metros).
+        const aprox = pos.coords.accuracy > 300 ? " (ubicación aproximada: si no es exacta, elígela en el mapa)" : "";
+        aplicarEnvio(e, aprox);
+      } catch (err) {
+        out.textContent = "No pudimos calcular el envío. Toca «Elegir en el mapa».";
+      }
+    },
+    (err) => {
+      const denegado = err.code === 1;
+      trackEnvio({ metodo: "gps", resultado: denegado ? "permiso_denegado" : "error" });
+      out.textContent = denegado
+        ? "No diste permiso, no pasa nada: toca «Elegir en el mapa»."
+        : "No pudimos ubicarte. Toca «Elegir en el mapa».";
+    },
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+  );
+}
+
+// ---------- Mapa para elegir la ubicación ----------
+// Con llave de Google Maps (MAPS.googleKey en menu-data.js, restringida a kimsapizza.com)
+// se usa Google; sin llave, o si Google la rechaza o no carga, se usa OpenStreetMap
+// (Leaflet, sin llave). Cada proveedor es un "adaptador" con la misma forma:
+//   iniciar(elemento, alTocar(lat, lng)) · poner(lat, lng) · ajustar()
+// Las librerías solo se descargan cuando el cliente abre el mapa.
+const CENTRO_MAPA = { lat: -13.1605, lng: -74.2155 };
+let mapaAdaptador = null;
+let puntoElegido = null;
+let turnoMapa = 0;
+
+function cargarScript(src, extra = {}) {
+  return new Promise((ok, fallo) => {
+    const s = document.createElement("script");
+    s.src = src;
+    s.async = true;
+    Object.assign(s, extra);
+    s.onload = ok;
+    s.onerror = fallo;
+    document.head.appendChild(s);
+  });
+}
+
+function cargarCss(href, integrity) {
+  const l = document.createElement("link");
+  l.rel = "stylesheet";
+  l.href = href;
+  if (integrity) {
+    l.integrity = integrity;
+    l.crossOrigin = "";
+  }
+  document.head.appendChild(l);
+}
+
+// OpenStreetMap con Leaflet
+async function adaptadorOsm() {
+  if (!window.L) {
+    cargarCss(
+      "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+      "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    );
+    await cargarScript("https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", {
+      integrity: "sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=",
+      crossOrigin: "",
+    });
+  }
+  let mapa = null;
+  let marcador = null;
+  return {
+    proveedor: "osm",
+    iniciar(el, alTocar) {
+      mapa = L.map(el).setView([CENTRO_MAPA.lat, CENTRO_MAPA.lng], 14);
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "© OpenStreetMap",
+      }).addTo(mapa);
+      mapa.on("click", (ev) => alTocar(ev.latlng.lat, ev.latlng.lng));
+    },
+    poner(lat, lng) {
+      if (marcador) marcador.setLatLng([lat, lng]);
+      else marcador = L.marker([lat, lng]).addTo(mapa);
+    },
+    ajustar() {
+      mapa.invalidateSize();
+    },
+  };
+}
+
+// Google Maps (Maps JavaScript API)
+function adaptadorGoogle(llave) {
+  return new Promise((ok, fallo) => {
+    const espera = setTimeout(() => fallo(new Error("Google tardó demasiado")), 10000);
+    window.__kimsaGmapsListo = () => {
+      clearTimeout(espera);
+      ok(crear());
+    };
+    cargarScript(
+      `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(llave)}` +
+        `&callback=__kimsaGmapsListo&loading=async&language=es&region=PE`
+    ).catch((e) => {
+      clearTimeout(espera);
+      fallo(e);
+    });
+  });
+
+  function crear() {
+    let mapa = null;
+    let marcador = null;
+    return {
+      proveedor: "google",
+      iniciar(el, alTocar) {
+        mapa = new google.maps.Map(el, {
+          center: CENTRO_MAPA,
+          zoom: 14,
+          clickableIcons: false,
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: false,
+          gestureHandling: "greedy", // un dedo mueve el mapa, sin pedir "usa dos dedos"
+        });
+        mapa.addListener("click", (ev) => alTocar(ev.latLng.lat(), ev.latLng.lng()));
+      },
+      poner(lat, lng) {
+        const pos = { lat, lng };
+        if (marcador) marcador.setPosition(pos);
+        else marcador = new google.maps.Marker({ position: pos, map: mapa });
+      },
+      ajustar() {
+        google.maps.event.trigger(mapa, "resize");
+      },
+    };
+  }
+}
+
+function cerrarMapa() {
+  document.getElementById("ship-modal").hidden = true;
+  document.body.classList.remove("ship-open");
+}
+
+async function abrirMapa() {
+  const modal = document.getElementById("ship-modal");
+  const out = document.getElementById("ship-result");
+  modal.hidden = false;
+  document.body.classList.add("ship-open");
+
+  if (!mapaAdaptador) {
+    const el = document.getElementById("ship-map");
+
+    const alTocar = async (lat, lng) => {
+      const turno = ++turnoMapa;
+      mapaAdaptador.poner(lat, lng);
+      const res = document.getElementById("ship-map-result");
+      res.textContent = "Calculando…";
+      document.getElementById("ship-map-ok").disabled = true;
+      try {
+        const e = await cotizarUbicacion(lat, lng, "mapa");
+        if (turno !== turnoMapa) return; // ya tocó otro punto
+        puntoElegido = e;
+        res.textContent = textoEnvio(e);
+        document.getElementById("ship-map-ok").disabled = false;
+      } catch (err) {
+        if (turno === turnoMapa) res.textContent = "No pudimos calcular el envío. Intenta de nuevo.";
+      }
+    };
+
+    const conOsm = async () => {
+      el.innerHTML = "";
+      mapaAdaptador = await adaptadorOsm();
+      mapaAdaptador.iniciar(el, alTocar);
+    };
+
+    try {
+      if (MAPS.googleKey) {
+        // Google avisa aquí si la llave es inválida o no permite este sitio
+        // (sucede después de dibujar el mapa): se cambia a OpenStreetMap.
+        window.gm_authFailure = () => conOsm().catch(() => {});
+        mapaAdaptador = await adaptadorGoogle(MAPS.googleKey);
+        mapaAdaptador.iniciar(el, alTocar);
+      } else {
+        await conOsm();
+      }
+    } catch (err) {
+      try {
+        await conOsm();
+      } catch (err2) {
+        cerrarMapa();
+        out.textContent = "No pudimos cargar el mapa. Escribe tu dirección y el asesor te confirma el envío.";
+        return;
+      }
+    }
+    if (typeof gtag === "function") gtag("event", "shipping_map_open", { proveedor: mapaAdaptador.proveedor });
+  }
+  setTimeout(() => mapaAdaptador.ajustar(), 50);
+}
+
+function wireEnvio() {
+  document.getElementById("ship-geo-btn").addEventListener("click", usarMiUbicacion);
+  document.getElementById("ship-map-btn").addEventListener("click", abrirMapa);
+  document.getElementById("ship-map-cancel").addEventListener("click", cerrarMapa);
+  document.getElementById("ship-change-btn").addEventListener("click", () => {
+    document.querySelector(".cart-ship").classList.remove("ship-done");
+    document.getElementById("ship-change-btn").hidden = true;
+  });
+  document.getElementById("ship-map-ok").addEventListener("click", () => {
+    if (puntoElegido) aplicarEnvio(puntoElegido);
+    cerrarMapa();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") cerrarMapa();
   });
 }
 
@@ -357,6 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderDistricts();
   populateDeliveryDistricts();
   wireWhatsappButtons();
+  wireEnvio();
   wireVideoAutoplay();
   wireNavToggle();
   injectStructuredData();

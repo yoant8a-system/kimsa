@@ -399,6 +399,15 @@
 </a>
 
 <div class="cart-bar" id="cart-bar">
+  <div class="cart-ship">
+    <p class="cart-ship-help">Para calcular tu envío: permite tu ubicación <strong>solo esta vez</strong> o elige en el mapa.</p>
+    <div class="cart-ship-actions">
+      <button type="button" class="ship-btn" id="ship-geo-btn">📍 Usar mi ubicación</button>
+      <button type="button" class="ship-btn" id="ship-map-btn">🗺️ Elegir en el mapa</button>
+    </div>
+    <p class="cart-ship-result" id="ship-result" aria-live="polite"></p>
+    <button type="button" class="ship-change" id="ship-change-btn" hidden>Cambiar ubicación</button>
+  </div>
   <div class="cart-delivery-fields">
     <input type="text" id="delivery-address" placeholder="Tu dirección (calle, número, referencia)">
     <select id="delivery-district">
@@ -406,12 +415,26 @@
     </select>
   </div>
   <div class="cart-bar-row">
-    <div class="cart-bar-info"><strong id="cart-count">0</strong> platos · <span id="cart-total">S/ 0.00</span></div>
+    <div class="cart-bar-info"><strong id="cart-count">0</strong> platos · <span id="cart-total">S/ 0.00</span><span id="cart-ship-line"></span></div>
     <button class="btn btn-whatsapp" id="cart-wsp-btn">Enviar pedido por WhatsApp</button>
   </div>
 </div>
 
+<div class="ship-modal" id="ship-modal" hidden role="dialog" aria-modal="true" aria-label="Elige tu ubicación">
+  <div class="ship-modal-box">
+    <p class="ship-modal-title">Toca el mapa donde recibirás tu pedido</p>
+    <div id="ship-map"></div>
+    <p class="ship-modal-result" id="ship-map-result" aria-live="polite">Aún no elegiste un punto.</p>
+    <div class="ship-modal-actions">
+      <button type="button" class="btn btn-outline" id="ship-map-cancel">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="ship-map-ok" disabled>Confirmar ubicación</button>
+    </div>
+  </div>
+</div>
+
+<script>window.KIMSA_MAPS_KEY = "__MAPS_KEY__"; // lo reemplaza server.js con la variable GOOGLE_MAPS_KEY</script>
 <script src="js/menu-data.js?v=__V__"></script>
+<script src="js/envio.js?v=__V__"></script>
 <script src="js/script.js?v=__V__"></script>
 </body>
 </html>

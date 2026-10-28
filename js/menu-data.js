@@ -37,6 +37,16 @@ const SOCIAL = {
   instagram: null,
 };
 
+// Mapa para elegir la ubicación de entrega.
+// googleKey: llave de Google Maps JavaScript API, restringida a kimsapizza.com y con tope diario.
+// Viene de la variable de entorno GOOGLE_MAPS_KEY de Railway (la inyecta server.js en
+// index.html). Es pública por diseño (va en el navegador): la protege la restricción por sitio.
+// Vacía, o si Google la rechaza, la página usa OpenStreetMap sin llave.
+// (Si el HTML se abre sin pasar por server.js, queda el texto "__MAPS_KEY__": se ignora.)
+const MAPS = {
+  googleKey: /^AIza/.test(window.KIMSA_MAPS_KEY || "") ? window.KIMSA_MAPS_KEY : "",
+};
+
 // Distritos y zonas de reparto en Ayacucho
 const DISTRICTS = [
   "Ayacucho (Cercado)",
@@ -59,7 +69,9 @@ const BRANCHES = [
     address: "Av. Ejército 558 (Frente al Grifo Roca), Ayacucho",
     zone: "Pizza en la zona de Av. Ejército, frente al Grifo Roca. Delivery rápido a los alrededores.",
     phoneDisplay: "967 414 558",
-    mapsQuery: "Av. Ejército 558, Ayacucho, Perú", // TODO: reemplazar por lat/lng cuando tengamos el link de Google Maps de esta sucursal
+    lat: -13.160871,
+    lng: -74.211807,
+    mapsQuery: "Av. Ejército 558, Ayacucho, Perú",
     mapsUrl: null,
   },
   {
@@ -68,8 +80,8 @@ const BRANCHES = [
     address: "Av. Los Incas 400 - Los Olivos, Ayacucho",
     zone: "Pizzería en Los Olivos, San Juan Bautista. La más cercana si vives por esta zona.",
     phoneDisplay: "967 414 558",
-    lat: -13.1701522,
-    lng: -74.2160721,
+    lat: -13.170136,
+    lng: -74.216074,
     mapsUrl: "https://www.google.com/maps/place/Kimsa+pizza+%26+pasta-+los+olivos,+San+Juan+bautista/@-13.1697398,-74.2160114,19.46z/data=!4m6!3m5!1s0x91128725a23d9ba9:0x51914432fc8fc201!8m2!3d-13.1701522!4d-74.2160721!16s%2Fg%2F11v_8m31cd",
   },
   {
@@ -78,8 +90,8 @@ const BRANCHES = [
     address: "Jr. José Santos Chocano (Frente al Parque Infantil Nazarenas), Ayacucho",
     zone: "Pizza cerca del Parque Infantil Nazarenas. Ideal para llevar o comer en familia.",
     phoneDisplay: "967 414 558",
-    lat: -13.154172,
-    lng: -74.21558,
+    lat: -13.15421,
+    lng: -74.215617,
     mapsUrl: "https://maps.app.goo.gl/Bt3ied4MDUpCmWHU9",
   },
 ];

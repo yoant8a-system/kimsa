@@ -35,6 +35,15 @@ function calcularVersion() {
 const VERSION = calcularVersion();
 console.log(`Version de assets: ${VERSION}`);
 
+// Llave de Google Maps: variable de entorno GOOGLE_MAPS_KEY en Railway.
+// Es pública por diseño (va dentro de la página): la protege la restricción por
+// sitio que se le pone en Google Cloud, no el secreto. Se valida el formato para
+// no meter nada raro en el HTML. Vacía, el mapa usa OpenStreetMap.
+const MAPS_KEY = /^[A-Za-z0-9_-]{20,80}$/.test(process.env.GOOGLE_MAPS_KEY || "")
+  ? process.env.GOOGLE_MAPS_KEY
+  : "";
+console.log(`Mapa de envio: ${MAPS_KEY ? "Google Maps" : "OpenStreetMap (falta GOOGLE_MAPS_KEY)"}`);
+
 // Redirigir www -> dominio sin www, y forzar HTTPS.
 // Evita que Google indexe la misma página en dos direcciones distintas,
 // lo que dividiría el posicionamiento entre ambas.
@@ -51,11 +60,14 @@ app.use((req, res, next) => {
   next();
 });
 
-// Servir el HTML con la versión ya inyectada
+// Servir el HTML con la versión y la llave del mapa ya inyectadas
 function servirHtml(nombreArchivo, res) {
   const ruta = path.join(__dirname, nombreArchivo);
   if (!fs.existsSync(ruta)) return false;
-  const html = fs.readFileSync(ruta, "utf8").replace(/__V__/g, VERSION);
+  const html = fs
+    .readFileSync(ruta, "utf8")
+    .replace(/__V__/g, VERSION)
+    .replace(/__MAPS_KEY__/g, MAPS_KEY);
   res.setHeader("Content-Type", "text/html; charset=UTF-8");
   res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
   res.send(html);
